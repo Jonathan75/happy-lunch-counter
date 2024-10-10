@@ -1,12 +1,14 @@
 
-https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+// https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
 #include <TFT_eSPI.h>
 // Can be installed from the library manager (Search for "TFT_eSPI")
 //https://github.com/Bodmer/TFT_eSPI
 #include <WiFi.h>
 
-const char* ssid     = ""; 
-const char* password = "";
+// const char* ssid     = ""; 
+// const char* password = "";
+
+
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -16,6 +18,7 @@ void font_big(){ tft.setFreeFont(&FreeSans24pt7b); }
 
 
 void screen_print(String message, int timeout=1000){
+  Serial.println(message);
   // tft.drawString(message, 1, 1, 1);
   tft.println(message);
   delay(timeout);
@@ -30,7 +33,7 @@ String IpAddress2String(const IPAddress& ipAddress)
 }
 
 void wifi_setup(){
-  tft.setCursor(0, 9, 9);
+  tft.setCursor(0, 15, 15);
   font_9pt();
   screen_print("starting wifi");
   WiFi.begin(ssid, password);
@@ -46,7 +49,9 @@ void wifi_setup(){
   screen_print("");
   screen_print("WiFi connected");
   screen_print("IP address: ");
-  screen_print(IpAddress2String(WiFi.localIP()));
+
+  // screen_print(IpAddress2String(WiFi.localIP()));
+  tft.println(WiFi.localIP());
 }
 
 
@@ -85,12 +90,15 @@ void setup() {
   // https://github.com/Bodmer/TFT_eSPI/blob/master/examples/480%20x%20320/Free_Font_Demo/Free_Fonts.h
 
   tft.setFreeFont(&FreeSans24pt7b);
-  // tft.drawString("Serif Bold 24pt", 1, 1, 1);
   
   wifi_setup();
+  // big font 
+  tft.drawString("Serif Bold 24pt", 1, 1, 1);
+
 }
 
+int count = 0;
 void loop() {
-  // put your main code here, to run repeatedly:
-  
+  screen_print(String(count));
+  count += 1;
 }
