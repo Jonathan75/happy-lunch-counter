@@ -1,9 +1,12 @@
 
-https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+// https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
 #include <TFT_eSPI.h>
 // Can be installed from the library manager (Search for "TFT_eSPI")
 //https://github.com/Bodmer/TFT_eSPI
 #include <WiFi.h>
+
+// const char* ssid     = ""; 
+// const char* password = "";
 
 const char* ssid     = ""; 
 const char* password = "";
@@ -11,11 +14,19 @@ const char* password = "";
 TFT_eSPI tft = TFT_eSPI();
 
 
-void font_9pt(){ tft.setFreeFont(&FreeSans9pt7b); }
-void font_big(){ tft.setFreeFont(&FreeSans24pt7b); }
+void font_9pt(){ 
+  tft.setTextSize(1); 
+  tft.setFreeFont(&FreeSans9pt7b); 
+}
+void font_big(){ 
+  // tft.setTextSize(2);
+  tft.setTextFont(6); 
+  tft.setFreeFont(&FreeSans24pt7b); 
+  }
 
 
 void screen_print(String message, int timeout=1000){
+  Serial.println(message);
   // tft.drawString(message, 1, 1, 1);
   tft.println(message);
   delay(timeout);
@@ -30,7 +41,7 @@ String IpAddress2String(const IPAddress& ipAddress)
 }
 
 void wifi_setup(){
-  tft.setCursor(0, 9, 9);
+  tft.setCursor(0, 15, 15);
   font_9pt();
   screen_print("starting wifi");
   WiFi.begin(ssid, password);
@@ -46,9 +57,13 @@ void wifi_setup(){
   screen_print("");
   screen_print("WiFi connected");
   screen_print("IP address: ");
-  screen_print(IpAddress2String(WiFi.localIP()));
+
+  // screen_print(IpAddress2String(WiFi.localIP()));
+  tft.println(WiFi.localIP());
 }
 
+int x = 320 / 2;
+int y = 240 / 2;
 
 void setup() {
   // Start the tft display and set it to black
@@ -59,18 +74,17 @@ void setup() {
   tft.fillScreen(TFT_BLACK);
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  int x = 5;
-  int y = 10;
-  int fontSize = 4; 
+  
+  // int fontSize = 4; 
   // tft.drawString("Hello", x, y, fontSize); // Left Aligned
-  x = 320 /2;
-  y += 16;
+  // x = 320 /2;
+  // y += 16;
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   // tft.drawCentreString("World", x, y, fontSize);
 
   /// new 
 
-  // tft.setTextSize(1);
+  
   // tft.fillScreen(TFT_BLACK);
   // tft.setTextColor(TFT_WHITE, TFT_BLACK);
 
@@ -84,13 +98,20 @@ void setup() {
 
   // https://github.com/Bodmer/TFT_eSPI/blob/master/examples/480%20x%20320/Free_Font_Demo/Free_Fonts.h
 
-  tft.setFreeFont(&FreeSans24pt7b);
-  // tft.drawString("Serif Bold 24pt", 1, 1, 1);
   
   wifi_setup();
+  font_big();
+  tft.fillScreen(TFT_BLACK);
 }
 
+int count = 0;
 void loop() {
-  // put your main code here, to run repeatedly:
-  
+  // screen_print(String(count));
+  // tft.drawString(String(count), 1, 1, 1);
+  // tft.drawCentreString(String(count), x, y, 1);
+  tft.fillScreen(TFT_BLACK);
+  // tft.drawCentreString(String(count), 50, 50, 2);
+  tft.drawCentreString(String(count), 320/2, 240/2.5, 1);
+  count += 1;
+  delay(1000);
 }
