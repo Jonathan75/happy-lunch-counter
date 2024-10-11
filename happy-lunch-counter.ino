@@ -6,6 +6,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 240
+
 #define BLUE_WIRE 22
 #define YELLOW_WIRE 27
 
@@ -20,12 +23,13 @@ const char* password = // TOP SECRET
 // set background state to 0 so that a button hold-down only counts as one push.
 int backgroundState = BUTTON_NOT_PUSHED_STATE;
 
+int customerCount = 0;
+
 TFT_eSPI tft = TFT_eSPI();
 
 void setup_wifi(){
   WiFi.begin(ssid, password);
   tft.print("connecting to wifi");
-  
 
   while (WiFi.status() != WL_CONNECTED) 
   {
@@ -59,6 +63,28 @@ void setup_button() {
   digitalWrite(YELLOW_WIRE, LOW);
 }
 
+void increment_customer_count() {
+  customerCount += 1;
+}
+
+void show_customer_count() {
+  tft.fillScreen(TFT_BLACK); // Clear the screen before writing to it
+  tft.setTextColor(TFT_WHITE, TFT_BLACK); // White text on a black background
+  tft.setTextFont(7);
+  tft.setFreeFont(&FreeSans18pt7b);
+
+  tft.drawCentreString(String(customerCount), SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5 - 25, 1);
+
+  const char* customerMessage = customerCount == 1 ? "Happy Customer" : "Happy Customers";
+  tft.drawCentreString(customerMessage, SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5 + 25, 1);
+
+}
+
+void customer_detected() {
+  increment_customer_count();
+  show_customer_count();
+}
+
 void check_button() {
   int buttonValue = digitalRead(BLUE_WIRE);
 
@@ -67,7 +93,7 @@ void check_button() {
     
     // Button has been released
     if (buttonValue == BUTTON_NOT_PUSHED_STATE) {
-      tft.println("Another happy customer.");
+      customer_detected();
     }
 
     // The button down-ness switched so the background state also switched because
@@ -84,8 +110,7 @@ void setup_screen() {
   tft.setTextColor(TFT_WHITE, TFT_BLACK); // White text on a black background
   tft.setFreeFont(&FreeSans9pt7b); // Small font
   tft.setCursor(0, 9, 9); // Acceptable margins so the text is not off-screen
-  tft.println("Hello World!");
-
+  tft.println("Hello, World! Enjoy your lunch.");
 }
 
 void setup() {
