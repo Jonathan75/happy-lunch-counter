@@ -8,13 +8,21 @@
 // const char* ssid     = ""; 
 // const char* password = "";
 
-
+const char* ssid     = "CoverMyMeds-Guest"; 
+const char* password = "technology";
 
 TFT_eSPI tft = TFT_eSPI();
 
 
-void font_9pt(){ tft.setFreeFont(&FreeSans9pt7b); }
-void font_big(){ tft.setFreeFont(&FreeSans24pt7b); }
+void font_9pt(){ 
+  tft.setTextSize(1); 
+  tft.setFreeFont(&FreeSans9pt7b); 
+}
+void font_big(){ 
+  // tft.setTextSize(2);
+  tft.setTextFont(6); 
+  tft.setFreeFont(&FreeSans24pt7b); 
+  }
 
 
 void screen_print(String message, int timeout=1000){
@@ -54,6 +62,8 @@ void wifi_setup(){
   tft.println(WiFi.localIP());
 }
 
+int x = 320 / 2;
+int y = 240 / 2;
 
 void setup() {
   // Start the tft display and set it to black
@@ -64,18 +74,17 @@ void setup() {
   tft.fillScreen(TFT_BLACK);
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  int x = 5;
-  int y = 10;
-  int fontSize = 4; 
+  
+  // int fontSize = 4; 
   // tft.drawString("Hello", x, y, fontSize); // Left Aligned
-  x = 320 /2;
-  y += 16;
+  // x = 320 /2;
+  // y += 16;
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   // tft.drawCentreString("World", x, y, fontSize);
 
   /// new 
 
-  // tft.setTextSize(1);
+  
   // tft.fillScreen(TFT_BLACK);
   // tft.setTextColor(TFT_WHITE, TFT_BLACK);
 
@@ -89,16 +98,20 @@ void setup() {
 
   // https://github.com/Bodmer/TFT_eSPI/blob/master/examples/480%20x%20320/Free_Font_Demo/Free_Fonts.h
 
-  tft.setFreeFont(&FreeSans24pt7b);
   
   wifi_setup();
-  // big font 
-  tft.drawString("Serif Bold 24pt", 1, 1, 1);
-
+  font_big();
+  tft.fillScreen(TFT_BLACK);
 }
 
 int count = 0;
 void loop() {
-  screen_print(String(count));
+  // screen_print(String(count));
+  // tft.drawString(String(count), 1, 1, 1);
+  // tft.drawCentreString(String(count), x, y, 1);
+  tft.fillScreen(TFT_BLACK);
+  // tft.drawCentreString(String(count), 50, 50, 2);
+  tft.drawCentreString(String(count), 320/2, 240/4, 1);
   count += 1;
+  delay(1000);
 }
