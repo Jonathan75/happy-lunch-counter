@@ -111,7 +111,7 @@ void loop() {
   // tft.drawCentreString(String(count), x, y, 1);
   tft.fillScreen(TFT_BLACK);
   // tft.drawCentreString(String(count), 50, 50, 2);
-  tft.drawCentreString(String(count), 320/2, 240/4, 1);
+  tft.drawCentreString(String(count), 320/2, 240/2.5, 1);
   count += 1;
   delay(1000);
 }
