@@ -5,6 +5,7 @@
 //https://github.com/Bodmer/TFT_eSPI
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -40,7 +41,7 @@ void setup_wifi(){
   tft.println("connected to wifi");
 }
 
-void hit_api() {
+const char* get_cat_fact() {
   String url = "https://catfact.ninja/fact";
   HTTPClient http;
   http.begin(url);
@@ -49,10 +50,16 @@ void hit_api() {
     // file found at server
     if (httpCode == HTTP_CODE_OK) {
       String payload = http.getString();
-      tft.println(payload);
+
+      // Deserialize the JSON, grabbing the 'fact' value
+      JsonDocument doc;
+      deserializeJson(doc, payload);
+      const char* fact = doc["fact"];
+
+      return fact;
     }
   } else {
-    tft.println("error http get");
+    return "";
   }
 }
 
@@ -76,6 +83,15 @@ void show_customer_count() {
   tft.setFreeFont(&FreeSans18pt7b);
   const char* customerMessage = customerCount == 1 ? "Happy Customer" : "Happy Customers";
   tft.drawCentreString(customerMessage, SCREEN_WIDTH/2, SCREEN_HEIGHT/5 + 25, 1);
+
+  // Show a fun cat fact to demonstrate internet connectivity / hitting an API
+  const char* catFact = get_cat_fact();
+
+  tft.setFreeFont(&FreeSans12pt7b);
+  tft.setCursor(0, SCREEN_HEIGHT/2 + 30, 1); // Acceptable margins so the text is not off-screen
+  tft.println(catFact);
+
+  // tft.drawCentreString(catFact, SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5 + 50, 1);
 }
 
 void customer_detected() {
@@ -115,8 +131,6 @@ void setup() {
   setup_screen();
   setup_button();
   setup_wifi();
-
-  hit_api();
 }
 
 void loop() {
