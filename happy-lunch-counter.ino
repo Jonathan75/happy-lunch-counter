@@ -1,96 +1,102 @@
 
-https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
+// https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display
 #include <TFT_eSPI.h>
 // Can be installed from the library manager (Search for "TFT_eSPI")
 //https://github.com/Bodmer/TFT_eSPI
 #include <WiFi.h>
+#include <HTTPClient.h>
 
-const char* ssid     = ""; 
-const char* password = "";
+#define BLUE_WIRE 22
+#define YELLOW_WIRE 27
+
+#define BUTTON_PUSHED_STATE 0
+#define BUTTON_NOT_PUSHED_STATE 1
+
+const char* ssid     = // YOUR WIFI HERE
+const char* password = // TOP SECRET
+
+// Used to set the "background" state of the button push.
+// Un-pushed button = 1, so start at 1. Then when a push is detected,
+// set background state to 0 so that a button hold-down only counts as one push.
+int backgroundState = BUTTON_NOT_PUSHED_STATE;
 
 TFT_eSPI tft = TFT_eSPI();
 
-
-void font_9pt(){ tft.setFreeFont(&FreeSans9pt7b); }
-void font_big(){ tft.setFreeFont(&FreeSans24pt7b); }
-
-
-void screen_print(String message, int timeout=1000){
-  // tft.drawString(message, 1, 1, 1);
-  tft.println(message);
-  delay(timeout);
-}
-
-String IpAddress2String(const IPAddress& ipAddress)
-{
-    return String(ipAddress[0]) + String(".") +
-           String(ipAddress[1]) + String(".") +
-           String(ipAddress[2]) + String(".") +
-           String(ipAddress[3]);
-}
-
-void wifi_setup(){
-  tft.setCursor(0, 9, 9);
-  font_9pt();
-  screen_print("starting wifi");
+void setup_wifi(){
   WiFi.begin(ssid, password);
-  screen_print("Wifi connecting to ");
-  screen_print(ssid);
+  tft.print("connecting to wifi");
+  
+
   while (WiFi.status() != WL_CONNECTED) 
   {
-    screen_print("");
-    delay(500);
-    screen_print("Retry");
+    tft.print(".");
+    delay(1000);
   }
-
-  screen_print("");
-  screen_print("WiFi connected");
-  screen_print("IP address: ");
-  screen_print(IpAddress2String(WiFi.localIP()));
+  tft.println("");
+  tft.println("connected to wifi");
 }
 
+void hit_api() {
+  String url = "https://catfact.ninja/fact";
+  HTTPClient http;
+  http.begin(url);
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    // file found at server
+    if (httpCode == HTTP_CODE_OK) {
+      String payload = http.getString();
+      tft.println(payload);
+    }
+  } else {
+    tft.println("error http get");
+  }
+}
+
+void setup_button() {
+  pinMode(BLUE_WIRE, INPUT_PULLUP);
+
+  pinMode(YELLOW_WIRE, OUTPUT);
+  digitalWrite(YELLOW_WIRE, LOW);
+}
+
+void check_button() {
+  int buttonValue = digitalRead(BLUE_WIRE);
+
+  // Something happened with the button
+  if (buttonValue != backgroundState) {
+    
+    // Button has been released
+    if (buttonValue == BUTTON_NOT_PUSHED_STATE) {
+      tft.println("Another happy customer.");
+    }
+
+    // The button down-ness switched so the background state also switched because
+    // it is the opposite of the down-ness.
+    // If the button is pressed, the background state is un-pressed. And vice versa.
+    backgroundState = !backgroundState;
+  }
+}
+
+void setup_screen() {
+  tft.init();
+  tft.setRotation(1); // This is the display in landscape
+  tft.fillScreen(TFT_BLACK); // Clear the screen before writing to it
+  tft.setTextColor(TFT_WHITE, TFT_BLACK); // White text on a black background
+  tft.setFreeFont(&FreeSans9pt7b); // Small font
+  tft.setCursor(0, 9, 9); // Acceptable margins so the text is not off-screen
+  tft.println("Hello World!");
+
+}
 
 void setup() {
-  // Start the tft display and set it to black
-  tft.init();
-  tft.setRotation(1); //This is the display in landscape
-  
-  // Clear the screen before writing to it
-  tft.fillScreen(TFT_BLACK);
+  setup_screen();
+  setup_button();
+  setup_wifi();
 
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  int x = 5;
-  int y = 10;
-  int fontSize = 4; 
-  // tft.drawString("Hello", x, y, fontSize); // Left Aligned
-  x = 320 /2;
-  y += 16;
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  // tft.drawCentreString("World", x, y, fontSize);
-
-  /// new 
-
-  // tft.setTextSize(1);
-  // tft.fillScreen(TFT_BLACK);
-  // tft.setTextColor(TFT_WHITE, TFT_BLACK);
-
-  // tft.drawString(" !\"#$%&'()*+,-./0123456", 0, 0, 12);
-  // tft.drawString("789:;<=>?@ABCDEFGHIJKL", 0, 16, 2);
-  // tft.drawString("MNOPQRSTUVWXYZ[\\]^_`", 0, 32, 2);
-  // tft.drawString("abcdefghijklmnopqrstuvw", 0, 48, 2);
-  // int xpos = 0;
-  // xpos += tft.drawString("xyz{|}~", 0, 64, 2);
-  // tft.drawChar(127, xpos, 64, 2);
-
-  // https://github.com/Bodmer/TFT_eSPI/blob/master/examples/480%20x%20320/Free_Font_Demo/Free_Fonts.h
-
-  tft.setFreeFont(&FreeSans24pt7b);
-  // tft.drawString("Serif Bold 24pt", 1, 1, 1);
-  
-  wifi_setup();
+  hit_api();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  
+  check_button();
+  delay(50);
 }
