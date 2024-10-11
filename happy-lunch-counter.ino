@@ -70,14 +70,12 @@ void increment_customer_count() {
 void show_customer_count() {
   tft.fillScreen(TFT_BLACK); // Clear the screen before writing to it
   tft.setTextColor(TFT_WHITE, TFT_BLACK); // White text on a black background
-  tft.setTextFont(7);
+  tft.setFreeFont(&FreeSans24pt7b);
+  tft.drawCentreString(String(customerCount), SCREEN_WIDTH/2, SCREEN_HEIGHT/5 - 25, 1);
+
   tft.setFreeFont(&FreeSans18pt7b);
-
-  tft.drawCentreString(String(customerCount), SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5 - 25, 1);
-
   const char* customerMessage = customerCount == 1 ? "Happy Customer" : "Happy Customers";
-  tft.drawCentreString(customerMessage, SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5 + 25, 1);
-
+  tft.drawCentreString(customerMessage, SCREEN_WIDTH/2, SCREEN_HEIGHT/5 + 25, 1);
 }
 
 void customer_detected() {
