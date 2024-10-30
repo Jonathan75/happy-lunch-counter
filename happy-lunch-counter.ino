@@ -5,6 +5,7 @@
 //https://github.com/Bodmer/TFT_eSPI
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include "secrets.h"
 
 #define BLUE_WIRE 22
 #define YELLOW_WIRE 27
@@ -12,8 +13,6 @@
 #define BUTTON_PUSHED_STATE 0
 #define BUTTON_NOT_PUSHED_STATE 1
 
-const char* ssid     = // YOUR WIFI HERE
-const char* password = // TOP SECRET
 
 // Used to set the "background" state of the button push.
 // Un-pushed button = 1, so start at 1. Then when a push is detected,
@@ -23,7 +22,7 @@ int backgroundState = BUTTON_NOT_PUSHED_STATE;
 TFT_eSPI tft = TFT_eSPI();
 
 void setup_wifi(){
-  WiFi.begin(ssid, password);
+  WiFi.begin(SSID, PASSWORD);
   tft.print("connecting to wifi");
   
 
