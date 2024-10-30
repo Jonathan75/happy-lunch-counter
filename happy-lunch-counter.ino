@@ -6,6 +6,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "secrets.h"
+// https://github.com/bblanchon/ArduinoJson
 #include <ArduinoJson.h>
 
 #define SCREEN_WIDTH 320
@@ -126,7 +127,19 @@ void setup_screen() {
   tft.println("Hello, World! Enjoy your lunch.");
 }
 
+unsigned long last_count_reset = 0; 
+void reset_count(){
+  // if current seconds - last reset is more then 12 hours
+  if (millis()/1000 - last_count_reset > 12*60*60) {
+    Serial.println("customer count reset");
+    tft.println("Count Reset");
+    customerCount = 0;
+    last_count_reset= millis()/1000;
+  }
+}
+
 void setup() {
+  Serial.begin(9600);
   setup_screen();
   setup_button();
   setup_wifi();
@@ -134,5 +147,6 @@ void setup() {
 
 void loop() {
   check_button();
+  reset_count();
   delay(50);
 }
